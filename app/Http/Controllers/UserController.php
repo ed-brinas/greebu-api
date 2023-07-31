@@ -16,6 +16,10 @@ use App\Traits\TwilioTrait;
 use App\Http\Resources\ProfileResource;
 use App\Http\Resources\UserResource;
 
+use Twilio\Rest\Client;
+use Twilio\Exceptions\TwilioException;
+use Exception;
+
 class UserController extends Controller
 {
     use UserTrait;
@@ -321,5 +325,88 @@ class UserController extends Controller
                 '6' => $this->sendOTP('+6309184592272'),
             ]
         ]);
+    }
+
+    public function sendSMS(Request $request, User $user)
+    {
+
+        $flag = $this->sendMessage($user->phone, $request->input('message'));
+        return response()->json([
+            'status' => $flag ? 200 : 422,
+            'message'   => 'Send SMS',
+            'result' => []
+        ]);
+    }
+
+    public function twilioAPISms(Request $request, User $user = null)
+    {
+        $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+
+        // return response()->json([
+        //     'status' => 200,
+        //     'message' => 'Twilio API SMS',
+        //     'result' => [
+        //         'res' => $twilio->messages->create(
+        //             $request->input('phone', '+639184592272'),
+        //             ['from' => env('TWILIO_NUMBER'), 'body' => $request->input('message', 'Default message content')],
+        //         ),
+        //     ]
+        // ]);
+
+        try {
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Twilio API SMS',
+                'result' => [
+                    'res' => $twilio->messages->create(
+                        $request->input('phone', '+639184592272'),
+                        ['from' => env('TWILIO_NUMBER'), 'body' => $request->input('message', 'Default message content')],
+                    ),
+                ]
+            ]);
+            return true;
+        } catch (TwilioException $e) {
+
+            return response()->json([
+                'status' => 501,
+                'message' => 'Twilio API SMS Failed',
+                'result' => [
+                    'res' => $e,
+                ]
+            ], 203);
+
+            return false;
+        }
+    }
+
+    public function twilioAPIOtp(Request $request, User $user = null)
+    {
+        try {
+            $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+
+            $response = $twilio->verify->v2->services(env('TWILIO_SERVICE_ID'))
+                ->verifications->create($request->input('phone', '+639184592272'), "sms");
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Send OTP',
+                'result'    => [
+                    'res'   => $response,
+                ]
+            ]);
+            return true;
+        } catch (Exception $th) {
+            //throw $th;
+            return response()->json([
+                'status' => 500,
+                'message' => 'Send OTP Error',
+                'result'    => [
+                    'res'   => $th,
+                ]
+            ]);
+
+            return false;
+        }
     }
 }
