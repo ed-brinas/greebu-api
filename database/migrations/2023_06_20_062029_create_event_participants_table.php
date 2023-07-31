@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('id_type')->nullable()->default('');
 
             $table->timestamp('booked_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate();
+            $table->timestamps();
             $table->softDeletes();
         });
     }

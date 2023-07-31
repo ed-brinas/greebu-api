@@ -21,7 +21,6 @@ return new class extends Migration
             $table->enum('plan_type', ["monthly", "yearly"]);
             $table->enum('account_type', ['service-provider', 'organizer', 'artists', 'customers'])->default('customers');
             $table->boolean('is_active')->nullable()->default(true);
-
             $table->timestamps();
             $table->softDeletes();
         });
