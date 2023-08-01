@@ -14,12 +14,14 @@ COPY docker/php/conf.d/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 COPY --from=build /app /var/www/html
 COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-RUN php artisan config:cache && \
-    php artisan route:cache && \
+RUN php artisan optimize && \
+    php artisan cache:clear && \
+    php artisan config:clear && \
+    php artisan view:clear && \
     chmod 777 -R /var/www/html/storage/ && \
     chown -R www-data:www-data /var/www/ && \
     a2enmod rewrite &&\
-    chmod 444 ./storage/oauth-* &&\
-    php artisan optimize
+    chmod 444 ./storage/oauth-*
+    
 
 CMD php artisan migrate --force && apache2-foreground

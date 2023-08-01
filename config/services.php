@@ -48,5 +48,14 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI')
     ],
+    'sendgrid' => [
+        'api_key' => env('SENDGRID_API_KEY'),
+    ],
 
+    'twilio' => [
+        'sid'           => env('TWILIO_SID'),
+        'auth_token'    => env('TWILIO_AUTH_TOKEN'),
+        'number'        => env('TWILIO_NUMBER'),
+        'service_id'    => env('TWILIO_SERVICE_ID'),
+    ]
 ];
